@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}uGalla — All{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1 class="page-header__title">All Photos</h1>
+</div>
+<div class="masonry">
+  {% for img in images %}
+  <div class="card" data-gallery="{{ img.gallery }}" data-filename="{{ img.filename }}">
+    <img class="card__image" src="{{ url_for('static', filename=img.path) }}" alt="{{ img.filename }}" loading="lazy">
+    <div class="card__meta">
+      <span class="card__gallery">{{ img.gallery }}</span>
+      <span class="card__date">{{ img.date_taken[:10] if img.date_taken else '' }}</span>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<div class="pagination">
+  {% if page > 1 %}
+  <a href="{{ url_for('index', page=page-1) }}" class="pagination__link">&#9664; Previous</a>
+  {% endif %}
+  <span class="pagination__info">Page {{ page }} of {{ total_pages }}</span>
+  {% if page < total_pages %}
+  <a href="{{ url_for('index', page=page+1) }}" class="pagination__link">Next &#9654;</a>
+  {% endif %}
+</div>
+{% endblock %}
