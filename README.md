@@ -1,2 +1,2 @@
 # uGalla
-A photo gallery static site generator written with Python.
+A lighweight photo gallery written with Python.
