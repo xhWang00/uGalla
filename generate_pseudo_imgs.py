@@ -14,8 +14,7 @@ RATIOS = {
 }
 
 TARGET_MP = 20_000_000
-NUM_IMAGES = 25
-OUTPUT = Path("static/imgs")
+NUM_IMAGES = 60
 
 CAMERAS = [
     ("Canon", "EOS R5"),
@@ -73,7 +72,6 @@ def to_exif_rational(value: float) -> tuple[int, int]:
 
 
 def to_dms(coord: float) -> tuple[tuple[int, int], tuple[int, int], tuple[int, int]]:
-    sign = -1 if coord < 0 else 1
     coord = abs(coord)
     deg = int(coord)
     min_f = (coord - deg) * 60
@@ -85,7 +83,7 @@ def to_dms(coord: float) -> tuple[tuple[int, int], tuple[int, int], tuple[int, i
     )
 
 
-def make_exif(rng: random.Random, seed: int) -> bytes:
+def make_exif(rng: random.Random, seed: int, dt: datetime) -> bytes:
     camera_make, camera_model = CAMERAS[seed % len(CAMERAS)]
     aperture = rng.choice(APERTURES)
     shutter_speed = rng.choice(SHUTTER_SPEEDS)
@@ -93,15 +91,13 @@ def make_exif(rng: random.Random, seed: int) -> bytes:
     focal_length = rng.choice(FOCAL_LENGTHS)
     lat, lon, city, country = LOCATIONS[seed % len(LOCATIONS)]
 
-    base_date = datetime(2020, 1, 1)
-    random_date = base_date + timedelta(days=rng.randint(0, 2000))
-    date_str = random_date.strftime("%Y:%m:%d %H:%M:%S")
+    date_str = dt.strftime("%Y:%m:%d %H:%M:%S")
 
     exif_dict = {
         "0th": {
             piexif.ImageIFD.Make: camera_make,
             piexif.ImageIFD.Model: camera_model,
-            piexif.ImageIFD.Software: "AI Image Generator v1.0",
+            piexif.ImageIFD.Software: "uGalla Generator v1.0",
             piexif.ImageIFD.Artist: f"Photographer {seed + 1:03d}",
             piexif.ImageIFD.DateTime: date_str,
         },
@@ -155,21 +151,37 @@ def make_image(width: int, height: int, seed: int) -> Image.Image:
 
 
 def main():
-    OUTPUT.mkdir(parents=True, exist_ok=True)
-    existing = set(OUTPUT.iterdir())
-    for i in range(NUM_IMAGES):
-        name, (w_ratio, h_ratio) = list(RATIOS.items())[i % len(RATIOS)]
-        w, h = dimensions((w_ratio, h_ratio))
-        actual_mp = (w * h) / 1_000_000
-        filename = f"img_{i:02d}_{name}_{w}x{h}.jpg"
-        filepath = OUTPUT / filename
-        if filepath in existing:
-            print(f"Skipping {filename} (already exists)")
-            continue
-        img = make_image(w, h, seed=i)
-        exif_bytes = make_exif(random.Random(i), i)
-        img.save(filepath, quality=85, optimize=True, exif=exif_bytes)
-        print(f"Created {filename}  ({actual_mp:.1f}MP, {w}x{h})")
+    base = Path("static")
+    base.mkdir(parents=True, exist_ok=True)
+
+    # Create 3 monthly galleries: 2025-01, 2025-02, 2025-03
+    months = ["2025-01", "2025-02", "2025-03"]
+    images_per_month = NUM_IMAGES // len(months)
+
+    for mi, month in enumerate(months):
+        gallery_dir = base / month
+        gallery_dir.mkdir(parents=True, exist_ok=True)
+        existing = set(gallery_dir.iterdir())
+
+        for i in range(images_per_month):
+            idx = mi * images_per_month + i
+            name, (w_ratio, h_ratio) = list(RATIOS.items())[idx % len(RATIOS)]
+            w, h = dimensions((w_ratio, h_ratio))
+            filename = f"img_{idx:02d}_{name}_{w}x{h}.jpg"
+            filepath = gallery_dir / filename
+
+            if filepath in existing:
+                print(f"Skipping {month}/{filename} (already exists)")
+                continue
+
+            # Spread dates across the month
+            day = (i % 28) + 1
+            dt = datetime(2025, mi + 1, day, 12, 0, 0) + timedelta(hours=i)
+
+            img = make_image(w, h, seed=idx)
+            exif_bytes = make_exif(random.Random(idx), idx, dt)
+            img.save(filepath, quality=85, optimize=True, exif=exif_bytes)
+            print(f"Created {month}/{filename}  ({(w*h)/1_000_000:.1f}MP, {w}x{h})")
 
 
 if __name__ == "__main__":

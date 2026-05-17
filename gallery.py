@@ -28,9 +28,14 @@ class ImageMeta:
 def _dms_to_decimal(dms: tuple, ref: str) -> float:
     if not dms or len(dms) < 3:
         return 0.0
-    deg = float(dms[0][0]) / float(dms[0][1]) if dms[0][1] else 0
-    minute = float(dms[1][0]) / float(dms[1][1]) if dms[1][1] else 0
-    sec = float(dms[2][0]) / float(dms[2][1]) if dms[2][1] else 0
+    if isinstance(dms[0], tuple):
+        deg = float(dms[0][0]) / float(dms[0][1]) if dms[0][1] else 0
+        minute = float(dms[1][0]) / float(dms[1][1]) if dms[1][1] else 0
+        sec = float(dms[2][0]) / float(dms[2][1]) if dms[2][1] else 0
+    else:
+        deg = float(dms[0])
+        minute = float(dms[1])
+        sec = float(dms[2])
     decimal = deg + minute / 60.0 + sec / 3600.0
     if ref in ("S", "W"):
         decimal = -decimal
@@ -124,32 +129,38 @@ class GalleryScanner:
             gps_lon = None
 
             if exif_data:
-                if EXIF_DATETIME_ORIGINAL in exif_data:
-                    date_taken = str(exif_data[EXIF_DATETIME_ORIGINAL])
                 if EXIF_MAKE in exif_data:
                     camera_make = str(exif_data[EXIF_MAKE]).strip()
                 if EXIF_MODEL in exif_data:
                     camera_model = str(exif_data[EXIF_MODEL]).strip()
-                if EXIF_FOCAL_LENGTH in exif_data:
-                    fl = _rational_to_float(exif_data[EXIF_FOCAL_LENGTH])
-                    focal_length = f"{int(fl)}mm" if fl else None
-                if EXIF_FNUMBER in exif_data:
-                    ap = _rational_to_float(exif_data[EXIF_FNUMBER])
-                    aperture = f"f/{ap}" if ap else None
-                if EXIF_EXPOSURE_TIME in exif_data:
-                    shutter = _parse_shutter(exif_data[EXIF_EXPOSURE_TIME])
-                if EXIF_ISO in exif_data:
-                    iso = int(exif_data[EXIF_ISO])
 
-                gps_info = exif_data.get(GPS_INFO_TAG)
-                if gps_info and isinstance(gps_info, dict):
+                exif_ifd = exif_data.get_ifd(34665)
+                if EXIF_DATETIME_ORIGINAL in exif_ifd:
+                    date_taken = str(exif_ifd[EXIF_DATETIME_ORIGINAL])
+                if EXIF_FOCAL_LENGTH in exif_ifd:
+                    fl = _rational_to_float(exif_ifd[EXIF_FOCAL_LENGTH])
+                    focal_length = f"{int(fl)}mm" if fl else None
+                if EXIF_FNUMBER in exif_ifd:
+                    ap = _rational_to_float(exif_ifd[EXIF_FNUMBER])
+                    aperture = f"f/{ap}" if ap else None
+                if EXIF_EXPOSURE_TIME in exif_ifd:
+                    shutter = _parse_shutter(exif_ifd[EXIF_EXPOSURE_TIME])
+                if EXIF_ISO in exif_ifd:
+                    iso = int(exif_ifd[EXIF_ISO])
+
+                gps_info = exif_data.get_ifd(GPS_INFO_TAG)
+                if gps_info:
                     lat_dms = gps_info.get(GPS_LAT_TAG)
                     lat_ref = gps_info.get(GPS_LAT_REF_TAG, b"N")
                     lon_dms = gps_info.get(GPS_LON_TAG)
                     lon_ref = gps_info.get(GPS_LON_REF_TAG, b"E")
+                    if isinstance(lat_ref, bytes):
+                        lat_ref = lat_ref.decode()
+                    if isinstance(lon_ref, bytes):
+                        lon_ref = lon_ref.decode()
                     if lat_dms and lon_dms:
-                        gps_lat = round(_dms_to_decimal(lat_dms, lat_ref.decode()), 6)
-                        gps_lon = round(_dms_to_decimal(lon_dms, lon_ref.decode()), 6)
+                        gps_lat = round(_dms_to_decimal(lat_dms, lat_ref), 6)
+                        gps_lon = round(_dms_to_decimal(lon_dms, lon_ref), 6)
 
             return ImageMeta(
                 gallery=gallery,
