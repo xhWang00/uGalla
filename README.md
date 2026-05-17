@@ -2,6 +2,8 @@
 
 A lightweight photo gallery written in Python. uGalla scans directories of images, extracts EXIF metadata, and serves them in a responsive web gallery with a lightbox viewer.
 
+![](./docs/screenshot.png)
+
 ## Quick Start
 
 ```bash
