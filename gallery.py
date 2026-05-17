@@ -23,6 +23,8 @@ class ImageMeta:
     iso: Optional[int] = None
     gps_lat: Optional[float] = None
     gps_lon: Optional[float] = None
+    location_city: Optional[str] = None
+    location_country: Optional[str] = None
 
 
 def _dms_to_decimal(dms: tuple, ref: str) -> float:
@@ -208,6 +210,11 @@ class GalleryScanner:
         images = self._galleries.get(gallery, [])
         for img in images:
             if img.filename == filename:
+                location = None
+                if img.location_city and img.location_country:
+                    location = f"{img.location_city}, {img.location_country}"
+                elif img.gps_lat is not None and img.gps_lon is not None:
+                    location = f"{img.gps_lat:.4f}, {img.gps_lon:.4f}"
                 return {
                     "camera": f"{img.camera_make or ''} {img.camera_model or ''}".strip(),
                     "focal_length": img.focal_length,
@@ -216,6 +223,7 @@ class GalleryScanner:
                     "iso": img.iso,
                     "date": img.date_taken,
                     "dimensions": f"{img.width}x{img.height}",
+                    "location": location,
                     "path": img.path,
                     "filename": img.filename,
                 }

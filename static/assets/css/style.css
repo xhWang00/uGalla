@@ -261,25 +261,12 @@ a:hover {
 
 .lightbox__info td {
   padding: 4px 8px;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid var(--black);
 }
 
 .lightbox__info td:first-child {
   font-weight: 700;
   width: 40%;
-}
-
-.lightbox__info-btn {
-  position: absolute;
-  bottom: 16px;
-  right: 16px;
-  background: var(--white);
-  border: 1px solid var(--black);
-  color: var(--black);
-  cursor: pointer;
-  font-family: var(--font);
-  font-size: 0.75rem;
-  padding: 4px 8px;
 }
 
 /* Responsive */

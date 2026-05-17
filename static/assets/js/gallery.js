@@ -33,6 +33,7 @@
       ['ISO', data.iso],
       ['Date', data.date],
       ['Dimensions', data.dimensions],
+      ['Location', data.location],
     ];
     for (var i = 0; i < fields.length; i++) {
       if (fields[i][1]) {
@@ -64,6 +65,10 @@
         lightboxInfo.innerHTML = buildExifTable(data);
         lightboxInfo.classList.add('lightbox__info--open');
       }
+    };
+    xhr.onerror = function () {
+      lightboxInfo.innerHTML = '<p style="padding:8px;color:#cc0000;">Failed to load EXIF data</p>';
+      lightboxInfo.classList.add('lightbox__info--open');
     };
     xhr.send();
   }
@@ -105,8 +110,19 @@
     if (e.key === 'ArrowRight') nextImage();
   });
 
-  // Close lightbox on background click
+  // Close lightbox on background click,
+  // navigate on left/right third tap
   lightbox.addEventListener('click', function (e) {
-    if (e.target === lightbox) closeLightbox();
+    if (e.target !== lightbox) return;
+    var rect = lightbox.getBoundingClientRect();
+    var x = e.clientX - rect.left;
+    var third = rect.width / 3;
+    if (x < third) {
+      prevImage();
+    } else if (x > rect.width - third) {
+      nextImage();
+    } else {
+      closeLightbox();
+    }
   });
 })();
