@@ -4,9 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}uGalla{% endblock %}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/style.css') }}">
 </head>
 <body>
@@ -15,7 +12,7 @@
       <a href="{{ url_for('index') }}" class="header__title">uGalla</a>
       <button class="header__burger" id="burger" aria-label="Menu">&#9776;</button>
       <nav class="header__nav" id="nav">
-        <a href="{{ url_for('index') }}" class="header__link">All</a>
+        <a href="{{ url_for('index') }}" class="header__link">所有照片</a>
         {% for g in galleries %}
         <a href="{{ url_for('gallery', gallery_name=g) }}" class="header__link{% if gallery_name == g %} header__link--active{% endif %}">{{ g }}</a>
         {% endfor %}
@@ -32,7 +29,8 @@
     <button class="lightbox__prev" id="lightbox-prev">&#9664;</button>
     <img class="lightbox__image" id="lightbox-image" alt="">
     <button class="lightbox__next" id="lightbox-next">&#9654;</button>
-    <div class="lightbox__info" id="lightbox-info"></div>
+    <button class="lightbox__info-btn" id="lightbox-info-btn">i</button>
+    <div class="lightbox__info-card" id="lightbox-info-card"></div>
   </div>
 
   <script src="{{ url_for('static', filename='assets/js/gallery.js') }}"></script>

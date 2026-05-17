@@ -3,7 +3,8 @@
 
   var lightbox = document.getElementById('lightbox');
   var lightboxImage = document.getElementById('lightbox-image');
-  var lightboxInfo = document.getElementById('lightbox-info');
+  var lightboxInfoCard = document.getElementById('lightbox-info-card');
+  var lightboxInfoBtn = document.getElementById('lightbox-info-btn');
   var lightboxClose = document.getElementById('lightbox-close');
   var lightboxPrev = document.getElementById('lightbox-prev');
   var lightboxNext = document.getElementById('lightbox-next');
@@ -26,14 +27,14 @@
   function buildExifTable(data) {
     var rows = '';
     var fields = [
-      ['Camera', data.camera],
-      ['Focal Length', data.focal_length],
-      ['Aperture', data.aperture],
-      ['Shutter', data.shutter],
+      ['相机', data.camera],
+      ['焦距', data.focal_length],
+      ['光圈', data.aperture],
+      ['快门速度', data.shutter],
       ['ISO', data.iso],
-      ['Date', data.date],
-      ['Dimensions', data.dimensions],
-      ['Location', data.location],
+      ['日期', data.date],
+      ['分辨率', data.dimensions],
+      ['位置信息', data.location],
     ];
     for (var i = 0; i < fields.length; i++) {
       if (fields[i][1]) {
@@ -51,8 +52,8 @@
     lightboxImage.src = img.src;
     lightboxImage.alt = img.alt;
     lightbox.classList.add('lightbox--open');
-    lightboxInfo.classList.remove('lightbox__info--open');
-    lightboxInfo.innerHTML = '';
+    lightboxInfoCard.classList.remove('lightbox__info-card--open');
+    lightboxInfoCard.innerHTML = '';
 
     // Fetch EXIF data
     var gallery = card.getAttribute('data-gallery');
@@ -62,22 +63,26 @@
     xhr.onload = function () {
       if (xhr.status === 200) {
         var data = JSON.parse(xhr.responseText);
-        lightboxInfo.innerHTML = buildExifTable(data);
-        lightboxInfo.classList.add('lightbox__info--open');
+        lightboxInfoCard.innerHTML = buildExifTable(data);
       }
     };
     xhr.onerror = function () {
-      lightboxInfo.innerHTML = '<p style="padding:8px;color:#cc0000;">Failed to load EXIF data</p>';
-      lightboxInfo.classList.add('lightbox__info--open');
+      lightboxInfoCard.innerHTML = '<p style="padding:4px;color:#cc0000;">Failed to load EXIF</p>';
     };
     xhr.send();
   }
 
   function closeLightbox() {
     lightbox.classList.remove('lightbox--open');
-    lightboxInfo.classList.remove('lightbox__info--open');
+    lightboxInfoCard.classList.remove('lightbox__info-card--open');
     currentIndex = -1;
   }
+
+  // Toggle EXIF info card
+  lightboxInfoBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    lightboxInfoCard.classList.toggle('lightbox__info-card--open');
+  });
 
   function prevImage() {
     openLightbox(currentIndex - 1);

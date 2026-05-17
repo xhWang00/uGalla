@@ -8,7 +8,7 @@
   --black: #000;
   --white: #fff;
   --accent: #cc0000;
-  --font: 'JetBrains Mono', 'Courier New', monospace;
+  --font: font-family: Arial, Helvetica, sans-serif;
   --space: 16px;
   --border: 1px solid var(--black);
 }
@@ -236,37 +236,64 @@ a:hover {
 .lightbox__prev { left: 16px; }
 .lightbox__next { right: 16px; }
 
-.lightbox__info {
+.lightbox__info-btn {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: var(--white);
-  border-top: var(--border);
-  padding: var(--space);
+  bottom: 16px;
+  right: 16px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--white);
+  color: var(--white);
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
   font-size: 0.75rem;
-  display: none;
-  max-height: 40vh;
-  overflow-y: auto;
+  font-family: var(--font);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 210;
+  line-height: 1;
 }
 
-.lightbox__info--open {
+.lightbox__info-btn:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.lightbox__info-card {
+  display: none;
+  position: absolute;
+  bottom: 52px;
+  right: 16px;
+  background: var(--white);
+  border: var(--border);
+  padding: 8px 10px;
+  font-size: 0.65rem;
+  z-index: 210;
+  min-width: 180px;
+  max-width: 260px;
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.15);
+  line-height: 1.4;
+}
+
+.lightbox__info-card--open {
   display: block;
 }
 
-.lightbox__info table {
+.lightbox__info-card table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.lightbox__info td {
-  padding: 4px 8px;
+.lightbox__info-card td {
+  padding: 2px 6px;
   border-bottom: 1px solid var(--black);
+  white-space: nowrap;
 }
 
-.lightbox__info td:first-child {
+.lightbox__info-card td:first-child {
   font-weight: 700;
-  width: 40%;
+  width: 35%;
 }
 
 /* Responsive */
@@ -312,5 +339,21 @@ a:hover {
   .card__meta {
     flex-direction: column;
     gap: 2px;
+  }
+
+  .lightbox__info-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+    bottom: 12px;
+    right: 12px;
+  }
+
+  .lightbox__info-card {
+    bottom: 56px;
+    right: 12px;
+    left: 12px;
+    max-width: none;
+    font-size: 0.6rem;
   }
 }
