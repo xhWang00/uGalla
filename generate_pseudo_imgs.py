@@ -151,7 +151,7 @@ def make_image(width: int, height: int, seed: int) -> Image.Image:
 
 
 def main():
-    base = Path("static")
+    base = Path("static/imgs")
     base.mkdir(parents=True, exist_ok=True)
 
     # Create 3 monthly galleries: 2025-01, 2025-02, 2025-03

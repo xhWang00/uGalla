@@ -78,8 +78,9 @@ def _parse_shutter(rational: object) -> str:
 
 
 class GalleryScanner:
-    def __init__(self, static_dir: str | Path = "static"):
+    def __init__(self, static_dir: str | Path = "static", gallery_root: str = "imgs"):
         self.static_dir = Path(static_dir)
+        self.gallery_root = gallery_root
         self._galleries: dict[str, list[ImageMeta]] = {}
         self._gallery_order: list[str] = []
         self.scan()
@@ -87,9 +88,10 @@ class GalleryScanner:
     def scan(self) -> None:
         self._galleries = {}
         self._gallery_order = []
-        if not self.static_dir.is_dir():
+        gallery_path = self.static_dir / self.gallery_root
+        if not gallery_path.is_dir():
             return
-        for entry in sorted(self.static_dir.iterdir()):
+        for entry in sorted(gallery_path.iterdir()):
             if not entry.is_dir():
                 continue
             if entry.name.startswith("."):
@@ -102,7 +104,7 @@ class GalleryScanner:
                 self._gallery_order.append(entry.name)
 
     def _scan_gallery(self, gallery_name: str) -> list[ImageMeta]:
-        gallery_path = self.static_dir / gallery_name
+        gallery_path = self.static_dir / self.gallery_root / gallery_name
         images: list[ImageMeta] = []
         for fname in sorted(gallery_path.iterdir()):
             if fname.suffix.lower() not in IMG_EXTENSIONS:
@@ -167,7 +169,7 @@ class GalleryScanner:
             return ImageMeta(
                 gallery=gallery,
                 filename=fpath.name,
-                path=f"{gallery}/{fpath.name}",
+                path=f"{self.gallery_root}/{gallery}/{fpath.name}",
                 width=w,
                 height=h,
                 date_taken=date_taken,
